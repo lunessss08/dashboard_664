@@ -3,113 +3,84 @@ from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
 
-# 1. เตรียมข้อมูลจำลอง (Mock Data)
-data = {
-    "Category": [
-        "Electronics",
-        "Electronics",
-        "Clothing",
-        "Clothing",
-        "Home",
-        "Home",
-        "Electronics",
-        "Home",
-    ],
-    "Product": [
-        "Laptop",
-        "Mouse",
-        "T-Shirt",
-        "Jeans",
-        "Lamp",
-        "Chair",
-        "Keyboard",
-        "Table",
-    ],
-    "Sales": [1200, 300, 500, 700, 150, 450, 200, 800],
-    "Region": ["North", "South", "North", "East", "West", "North", "East", "South"],
-}
-df = pd.DataFrame(data)
+# =============================
+# Load Dataset
+# =============================
+df = px.data.gapminder()
 
-# 2. เริ่มสร้าง Dash App
+# =============================
+# Create App
+# =============================
 app = dash.Dash(__name__)
 
+# =============================
+# Layout
+# =============================
 app.layout = html.Div(
     [
-        html.H1(
-            "Sales Analysis Dashboard",
-            style={"textAlign": "center", "color": "#2c3e50"},
+        html.H1("🌍 Gapminder Dashboard", style={"textAlign": "center"}),
+        # Dropdown สำหรับเลือกทวีป
+        html.Label("Select Continent:"),
+        dcc.Dropdown(
+            id="continent-dropdown",
+            options=[{"label": i, "value": i} for i in df["continent"].unique()],
+            value="Asia",
         ),
-        html.Div(
-            [
-                html.Label("เลือกภูมิภาค (Interactive Filter):"),
-                dcc.Dropdown(
-                    id="region-dropdown",
-                    options=[{"label": r, "value": r} for r in df["Region"].unique()],
-                    value="North",  # ค่าเริ่มต้น
-                    clearable=False,
-                    style={"width": "50%"},
-                ),
-            ],
-            style={"padding": "20px"},
-        ),
-        html.Div(
-            [
-                # กราฟที่ 1: ยอดขายรายสินค้า (Bar Chart)
-                dcc.Graph(
-                    id="bar-chart", style={"display": "inline-block", "width": "48%"}
-                ),
-                # กราฟที่ 2: สัดส่วนหมวดหมู่ (Pie Chart)
-                dcc.Graph(
-                    id="pie-chart", style={"display": "inline-block", "width": "48%"}
-                ),
-            ]
-        ),
-        # กราฟที่ 3: กระจายตัวของราคา (Scatter Plot)
-        html.Div([dcc.Graph(id="scatter-plot")]),
+        # กราฟที่ 1
+        dcc.Graph(id="life-exp-graph"),
+        # กราฟที่ 2
+        dcc.Graph(id="gdp-graph"),
+        # กราฟที่ 3
+        dcc.Graph(id="population-graph"),
     ]
 )
 
 
-# 3. ส่วนของ Interactivity (Callback)
+# =============================
+# Callback (Interactive Part)
+# =============================
 @app.callback(
-    [
-        Output("bar-chart", "figure"),
-        Output("pie-chart", "figure"),
-        Output("scatter-plot", "figure"),
-    ],
-    [Input("region-dropdown", "value")],
+    Output("life-exp-graph", "figure"),
+    Output("gdp-graph", "figure"),
+    Output("population-graph", "figure"),
+    Input("continent-dropdown", "value"),
 )
-def update_graphs(selected_region):
-    # กรองข้อมูลตามภูมิภาคที่เลือก
-    filtered_df = df[df["Region"] == selected_region]
+def update_graphs(selected_continent):
 
-    # สร้าง Bar Chart
-    fig1 = px.bar(
+    filtered_df = df[df["continent"] == selected_continent]
+
+    # Graph 1: Life Expectancy over time
+    fig1 = px.line(
         filtered_df,
-        x="Product",
-        y="Sales",
-        title=f"Sales by Product in {selected_region}",
-        color="Product",
+        x="year",
+        y="lifeExp",
+        color="country",
+        title="Life Expectancy Over Time",
     )
 
-    # สร้าง Pie Chart
-    fig2 = px.pie(
-        filtered_df, names="Category", values="Sales", title=f"Sales share by Category"
+    # Graph 2: GDP per capita
+    fig2 = px.line(
+        filtered_df,
+        x="year",
+        y="gdpPercap",
+        color="country",
+        title="GDP per Capita Over Time",
     )
 
-    # สร้าง Scatter Plot
-    fig3 = px.scatter(
+    # Graph 3: Population
+    fig3 = px.bar(
         filtered_df,
-        x="Product",
-        y="Sales",
-        size="Sales",
-        color="Category",
-        title=f"Sales Distribution Details",
-        hover_name="Product",
+        x="country",
+        y="pop",
+        color="country",
+        title="Population by Country",
     )
 
     return fig1, fig2, fig3
 
 
+# =============================
+# Run Server
+# =============================
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)
