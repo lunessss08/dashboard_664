@@ -18,26 +18,23 @@ app = dash.Dash(__name__)
 # =============================
 app.layout = html.Div(
     [
-        html.H1("🌍 Gapminder Dashboard", style={"textAlign": "center"}),
-        # Dropdown สำหรับเลือกทวีป
+        html.H1("🌍 World Data Dashboard", style={"textAlign": "center"}),
         html.Label("Select Continent:"),
         dcc.Dropdown(
             id="continent-dropdown",
-            options=[{"label": i, "value": i} for i in df["continent"].unique()],
+            options=[{"label": c, "value": c} for c in df["continent"].unique()],
             value="Asia",
+            clearable=False,
         ),
-        # กราฟที่ 1
         dcc.Graph(id="life-exp-graph"),
-        # กราฟที่ 2
         dcc.Graph(id="gdp-graph"),
-        # กราฟที่ 3
         dcc.Graph(id="population-graph"),
     ]
 )
 
 
 # =============================
-# Callback (Interactive Part)
+# Callback (Interactive)
 # =============================
 @app.callback(
     Output("life-exp-graph", "figure"),
@@ -49,7 +46,6 @@ def update_graphs(selected_continent):
 
     filtered_df = df[df["continent"] == selected_continent]
 
-    # Graph 1: Life Expectancy over time
     fig1 = px.line(
         filtered_df,
         x="year",
@@ -58,7 +54,6 @@ def update_graphs(selected_continent):
         title="Life Expectancy Over Time",
     )
 
-    # Graph 2: GDP per capita
     fig2 = px.line(
         filtered_df,
         x="year",
@@ -67,20 +62,13 @@ def update_graphs(selected_continent):
         title="GDP per Capita Over Time",
     )
 
-    # Graph 3: Population
-    fig3 = px.bar(
-        filtered_df,
-        x="country",
-        y="pop",
-        color="country",
-        title="Population by Country",
-    )
+    fig3 = px.bar(filtered_df, x="country", y="pop", title="Population by Country")
 
     return fig1, fig2, fig3
 
 
 # =============================
-# Run Server
+# Run App
 # =============================
 if __name__ == "__main__":
     app.run(debug=False)
