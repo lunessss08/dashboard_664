@@ -83,4 +83,4 @@ def update_graphs(selected_continent):
 # Run Server
 # =============================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
