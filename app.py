@@ -90,4 +90,4 @@ def update_graphs(selected_species, min_petal_length):
 # Run Server
 # ===============================
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)
