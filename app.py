@@ -2,83 +2,110 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-import numpy as np
 
-# 1. จำลองข้อมูล (Mock Data)
+# 1. เตรียมข้อมูลจำลอง (Mock Data)
 data = {
-    "Category": ["Laptop", "Smartphone", "Tablet", "Monitor"] * 25,
-    "Region": np.random.choice(["North", "South", "East", "West"], 100),
-    "Sales": np.random.randint(100, 1000, 100),
-    "Profit": np.random.randint(10, 300, 100),
-    "Month": np.random.choice(["Jan", "Feb", "Mar", "Apr"], 100),
+    "Category": [
+        "Electronics",
+        "Electronics",
+        "Clothing",
+        "Clothing",
+        "Home",
+        "Home",
+        "Electronics",
+        "Home",
+    ],
+    "Product": [
+        "Laptop",
+        "Mouse",
+        "T-Shirt",
+        "Jeans",
+        "Lamp",
+        "Chair",
+        "Keyboard",
+        "Table",
+    ],
+    "Sales": [1200, 300, 500, 700, 150, 450, 200, 800],
+    "Region": ["North", "South", "North", "East", "West", "North", "East", "South"],
 }
 df = pd.DataFrame(data)
 
-# 2. เริ่มต้น Dash App
+# 2. เริ่มสร้าง Dash App
 app = dash.Dash(__name__)
 
-# 3. ออกแบบ Layout (โครงสร้างหน้าจอ)
 app.layout = html.Div(
     [
-        html.H1("Sales Analysis Dashboard", style={"textAlign": "center"}),
+        html.H1(
+            "Sales Analysis Dashboard",
+            style={"textAlign": "center", "color": "#2c3e50"},
+        ),
         html.Div(
             [
-                html.Label("เลือกประเภทสินค้า:"),
+                html.Label("เลือกภูมิภาค (Interactive Filter):"),
                 dcc.Dropdown(
-                    id="category-dropdown",
-                    options=[{"label": i, "value": i} for i in df["Category"].unique()],
-                    value="Laptop",  # ค่าเริ่มต้น
+                    id="region-dropdown",
+                    options=[{"label": r, "value": r} for r in df["Region"].unique()],
+                    value="North",  # ค่าเริ่มต้น
                     clearable=False,
+                    style={"width": "50%"},
                 ),
             ],
-            style={"width": "30%", "margin": "0 auto", "padding": "20px"},
+            style={"padding": "20px"},
         ),
         html.Div(
             [
-                dcc.Graph(id="bar-chart"),
-                dcc.Graph(id="scatter-plot"),
-                dcc.Graph(id="pie-chart"),
-            ],
-            style={"display": "flex", "flexDirection": "column"},
+                # กราฟที่ 1: ยอดขายรายสินค้า (Bar Chart)
+                dcc.Graph(
+                    id="bar-chart", style={"display": "inline-block", "width": "48%"}
+                ),
+                # กราฟที่ 2: สัดส่วนหมวดหมู่ (Pie Chart)
+                dcc.Graph(
+                    id="pie-chart", style={"display": "inline-block", "width": "48%"}
+                ),
+            ]
         ),
+        # กราฟที่ 3: กระจายตัวของราคา (Scatter Plot)
+        html.Div([dcc.Graph(id="scatter-plot")]),
     ]
 )
 
 
-# 4. Callback (สร้างความ Interactive)
+# 3. ส่วนของ Interactivity (Callback)
 @app.callback(
     [
         Output("bar-chart", "figure"),
-        Output("scatter-plot", "figure"),
         Output("pie-chart", "figure"),
+        Output("scatter-plot", "figure"),
     ],
-    [Input("category-dropdown", "value")],
+    [Input("region-dropdown", "value")],
 )
-def update_graphs(selected_category):
-    # กรองข้อมูลตามที่ผู้ใช้เลือกใน Dropdown
-    filtered_df = df[df["Category"] == selected_category]
+def update_graphs(selected_region):
+    # กรองข้อมูลตามภูมิภาคที่เลือก
+    filtered_df = df[df["Region"] == selected_region]
 
-    # กราฟที่ 1: ยอดขายรวมตามภูมิภาค (Bar Chart)
+    # สร้าง Bar Chart
     fig1 = px.bar(
         filtered_df,
-        x="Region",
+        x="Product",
         y="Sales",
-        color="Region",
-        title=f"Total Sales by Region for {selected_category}",
+        title=f"Sales by Product in {selected_region}",
+        color="Product",
     )
 
-    # กราฟที่ 2: ความสัมพันธ์ระหว่าง Sales และ Profit (Scatter Plot)
-    fig2 = px.scatter(
+    # สร้าง Pie Chart
+    fig2 = px.pie(
+        filtered_df, names="Category", values="Sales", title=f"Sales share by Category"
+    )
+
+    # สร้าง Scatter Plot
+    fig3 = px.scatter(
         filtered_df,
-        x="Sales",
-        y="Profit",
+        x="Product",
+        y="Sales",
         size="Sales",
-        title=f"Sales vs Profit for {selected_category}",
-    )
-
-    # กราฟที่ 3: สัดส่วนยอดขายตามเดือน (Pie Chart)
-    fig3 = px.pie(
-        filtered_df, names="Month", values="Sales", title=f"Sales Distribution by Month"
+        color="Category",
+        title=f"Sales Distribution Details",
+        hover_name="Product",
     )
 
     return fig1, fig2, fig3
