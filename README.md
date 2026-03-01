@@ -1,19 +1,20 @@
-# Simple Sales Dashboard
+# Simple Gapminder Dashboard
 
-โปรเจกต์นี้เป็น Dashboard อย่างง่ายที่สร้างด้วย Python Dash เพื่อแสดงผลยอดขายสินค้าในแต่ละภูมิภาค
+## 📌 Overview
+This project is a simple interactive dashboard created using Dash and Plotly.
 
-## ส่วนประกอบของ Dashboard
-1. **Interactive Dropdown:** ใช้เลือกภูมิภาค (North, South, East, West) เพื่อกรองข้อมูล
-2. **Bar Chart:** แสดงยอดขายแยกตามรายชื่อสินค้า
-3. **Pie Chart:** แสดงสัดส่วนยอดขายตามหมวดหมู่สินค้า (Category)
-4. **Scatter Plot:** แสดงการกระจายตัวของยอดขาย
+The dashboard contains:
+- 3 interactive graphs
+- A dropdown component
+- Callback function for dynamic updates
 
-## วิธีการติดตั้งและรันโปรเจกต์
+## 📊 Features
+1. Line chart of Life Expectancy over time
+2. Line chart of GDP per capita over time
+3. Bar chart of Population by country
+4. Interactive dropdown to filter data by continent
 
-### 1. เตรียมความพร้อม
-ตรวจสอบว่าคุณมี Python ติดตั้งอยู่ในเครื่อง (แนะนำเวอร์ชัน 3.8 ขึ้นไป)
+## ⚙️ Installation
 
-### 2. ติดตั้ง Library ที่จำเป็น
-เปิด Terminal หรือ Command Prompt แล้วรันคำสั่ง:
-```bash
-pip install dash pandas plotly
+1. Clone the repository or download the files
+2. Install required packages:
