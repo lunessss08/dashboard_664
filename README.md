@@ -1,20 +1,77 @@
-# Simple Gapminder Dashboard
+# World Analytics Dashboard
 
-## 📌 Overview
-This project is a simple interactive dashboard created using Dash and Plotly.
+## 📌 Project Overview
 
-The dashboard contains:
-- 3 interactive graphs
-- A dropdown component
-- Callback function for dynamic updates
+This project is a simple interactive dashboard developed using Dash and Plotly.
 
-## 📊 Features
-1. Line chart of Life Expectancy over time
-2. Line chart of GDP per capita over time
-3. Bar chart of Population by country
-4. Interactive dropdown to filter data by continent
+The dashboard visualizes world development data using the Gapminder dataset.
+
+## 🎯 Features
+
+- 3 Interactive Graphs
+- KPI Summary Cards
+- Dropdown Filter by Continent
+- Responsive Bootstrap Layout
+- Dark Theme Design
+
+## 📊 Graphs Included
+
+1. Life Expectancy Over Time (Line Chart)
+2. GDP per Capita Over Time (Line Chart)
+3. Population by Country (Bar Chart - Latest Year)
+
+## 🛠 Technologies Used
+
+- Python
+- Dash
+- Plotly Express
+- Dash Bootstrap Components
+- Pandas
 
 ## ⚙️ Installation
 
-1. Clone the repository or download the files
-2. Install required packages:
+1. Create virtual environment (optional but recommended)
+
+```
+python -m venv env
+source env/bin/activate   # Mac/Linux
+```
+
+2. Install required packages
+
+```
+pip install dash
+pip install plotly
+pip install pandas
+pip install dash-bootstrap-components
+```
+
+or use:
+
+```
+pip install -r requirements.txt
+```
+
+## ▶️ How to Run
+
+Run the application using:
+
+```
+python app.py
+```
+
+After running, open your browser and go to:
+
+```
+http://127.0.0.1:8050
+```
+
+## 🧠 Interactive Mechanism
+
+When the user selects a continent from the dropdown menu:
+
+- Data is filtered dynamically
+- All graphs update automatically
+- KPI values are recalculated
+
+This demonstrates the use of Dash Callback for interactive components.
