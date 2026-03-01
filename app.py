@@ -164,3 +164,10 @@ def update_dashboard(selected_continent):
     total_pop = f"{int(latest_df['pop'].sum()):,}"
 
     return fig1, fig2, fig3, avg_life, avg_gdp, total_pop
+
+
+# =============================
+# Run App
+# =============================
+if __name__ == "__main__":
+    app.run(debug=False)
