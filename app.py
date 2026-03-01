@@ -1,93 +1,88 @@
 import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
+import numpy as np
 
-# ===============================
-# Load Dataset
-# ===============================
-df = px.data.iris()  # ใช้ dataset iris สำเร็จรูป
+# 1. จำลองข้อมูล (Mock Data)
+data = {
+    "Category": ["Laptop", "Smartphone", "Tablet", "Monitor"] * 25,
+    "Region": np.random.choice(["North", "South", "East", "West"], 100),
+    "Sales": np.random.randint(100, 1000, 100),
+    "Profit": np.random.randint(10, 300, 100),
+    "Month": np.random.choice(["Jan", "Feb", "Mar", "Apr"], 100),
+}
+df = pd.DataFrame(data)
 
-# ===============================
-# Create Dash App
-# ===============================
+# 2. เริ่มต้น Dash App
 app = dash.Dash(__name__)
-app.title = "Simple Iris Dashboard"
 
-# ===============================
-# Layout
-# ===============================
+# 3. ออกแบบ Layout (โครงสร้างหน้าจอ)
 app.layout = html.Div(
     [
-        html.H1("Iris Interactive Dashboard"),
-        # Dropdown เลือก Species
-        html.Label("Select Species:"),
-        dcc.Dropdown(
-            id="species-dropdown",
-            options=[{"label": s, "value": s} for s in df["species"].unique()],
-            value="setosa",
+        html.H1("Sales Analysis Dashboard", style={"textAlign": "center"}),
+        html.Div(
+            [
+                html.Label("เลือกประเภทสินค้า:"),
+                dcc.Dropdown(
+                    id="category-dropdown",
+                    options=[{"label": i, "value": i} for i in df["Category"].unique()],
+                    value="Laptop",  # ค่าเริ่มต้น
+                    clearable=False,
+                ),
+            ],
+            style={"width": "30%", "margin": "0 auto", "padding": "20px"},
         ),
-        # Slider เลือกช่วง Petal Length
-        html.Label("Minimum Petal Length:"),
-        dcc.Slider(
-            id="petal-slider",
-            min=df["petal_length"].min(),
-            max=df["petal_length"].max(),
-            step=0.1,
-            value=1,
-            marks=None,
-            tooltip={"placement": "bottom"},
+        html.Div(
+            [
+                dcc.Graph(id="bar-chart"),
+                dcc.Graph(id="scatter-plot"),
+                dcc.Graph(id="pie-chart"),
+            ],
+            style={"display": "flex", "flexDirection": "column"},
         ),
-        # Graph 1
-        dcc.Graph(id="scatter-plot"),
-        # Graph 2
-        dcc.Graph(id="histogram"),
-        # Graph 3
-        dcc.Graph(id="box-plot"),
     ]
 )
 
 
-# ===============================
-# Callback (Interactive Part)
-# ===============================
+# 4. Callback (สร้างความ Interactive)
 @app.callback(
-    Output("scatter-plot", "figure"),
-    Output("histogram", "figure"),
-    Output("box-plot", "figure"),
-    Input("species-dropdown", "value"),
-    Input("petal-slider", "value"),
+    [
+        Output("bar-chart", "figure"),
+        Output("scatter-plot", "figure"),
+        Output("pie-chart", "figure"),
+    ],
+    [Input("category-dropdown", "value")],
 )
-def update_graphs(selected_species, min_petal_length):
+def update_graphs(selected_category):
+    # กรองข้อมูลตามที่ผู้ใช้เลือกใน Dropdown
+    filtered_df = df[df["Category"] == selected_category]
 
-    # Filter data
-    filtered_df = df[
-        (df["species"] == selected_species) & (df["petal_length"] >= min_petal_length)
-    ]
-
-    # Graph 1: Scatter Plot
-    scatter = px.scatter(
+    # กราฟที่ 1: ยอดขายรวมตามภูมิภาค (Bar Chart)
+    fig1 = px.bar(
         filtered_df,
-        x="sepal_length",
-        y="sepal_width",
-        color="species",
-        title="Sepal Length vs Sepal Width",
+        x="Region",
+        y="Sales",
+        color="Region",
+        title=f"Total Sales by Region for {selected_category}",
     )
 
-    # Graph 2: Histogram
-    histogram = px.histogram(
-        filtered_df, x="petal_length", nbins=20, title="Distribution of Petal Length"
+    # กราฟที่ 2: ความสัมพันธ์ระหว่าง Sales และ Profit (Scatter Plot)
+    fig2 = px.scatter(
+        filtered_df,
+        x="Sales",
+        y="Profit",
+        size="Sales",
+        title=f"Sales vs Profit for {selected_category}",
     )
 
-    # Graph 3: Box Plot
-    box = px.box(filtered_df, y="petal_width", title="Petal Width Distribution")
+    # กราฟที่ 3: สัดส่วนยอดขายตามเดือน (Pie Chart)
+    fig3 = px.pie(
+        filtered_df, names="Month", values="Sales", title=f"Sales Distribution by Month"
+    )
 
-    return scatter, histogram, box
+    return fig1, fig2, fig3
 
 
-# ===============================
-# Run Server
-# ===============================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run_server(debug=True)
