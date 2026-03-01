@@ -3,7 +3,7 @@ from dash import dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
 
-# --- 1. เตรียมข้อมูล ---
+# --- 1. ข้อมูล (เหมือนเดิม) ---
 data = {
     "Category": [
         "Electronics",
@@ -30,197 +30,173 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# --- 2. เริ่มสร้าง Dash App ---
+# --- 2. เริ่มสร้าง App ---
 app = dash.Dash(__name__)
 
-# กำหนดสไตล์ส่วนกลาง
-COLORS = {"background": "#f9f9f9", "text": "#2c3e50", "card": "#ffffff"}
+# สไตล์โทนเข้ม
+DARK_STYLE = {
+    "background": "#1e1e2f",
+    "card": "#27293d",
+    "text": "#ffffff",
+    "accent": "#e14eca",  # สีชมพูสะท้อนแสง
+}
 
 app.layout = html.Div(
     style={
-        "backgroundColor": COLORS["background"],
-        "fontFamily": "sans-serif",
-        "padding": "20px",
+        "backgroundColor": DARK_STYLE["background"],
+        "color": DARK_STYLE["text"],
+        "minHeight": "100vh",
+        "padding": "0",
     },
     children=[
-        # ส่วนหัว (Header)
+        # Sidebar (ฝั่งซ้าย)
         html.Div(
             [
-                html.H1(
-                    "🚀 Sales Insight Dashboard",
-                    style={"textAlign": "center", "color": COLORS["text"]},
+                html.H2(
+                    "📊 SALES OS",
+                    style={"color": DARK_STYLE["accent"], "textAlign": "center"},
                 ),
-                html.P(
-                    "วิเคราะห์ข้อมูลการขายแบบ Interactive",
-                    style={"textAlign": "center", "color": "#7f8c8d"},
+                html.Hr(style={"borderColor": "#444"}),
+                html.P("Filter Control", style={"textAlign": "center"}),
+                dcc.Dropdown(
+                    id="region-dropdown",
+                    options=[
+                        {"label": f"📍 {r}", "value": r}
+                        for r in sorted(df["Region"].unique())
+                    ],
+                    value="North",
+                    clearable=False,
+                    style={"color": "#000"},  # ให้ตัวหนังสือใน dropdown อ่านง่าย
                 ),
+                html.Div(id="summary-info", style={"marginTop": "40px"}),
             ],
-            style={"marginBottom": "30px"},
+            style={
+                "width": "20%",
+                "position": "fixed",
+                "height": "100%",
+                "padding": "20px",
+                "backgroundColor": "#1a1a2e",
+                "boxShadow": "4px 0 10px rgba(0,0,0,0.3)",
+            },
         ),
-        # ส่วนควบคุมและสรุป (Control Panel & Cards)
+        # Main Content (ฝั่งขวา)
         html.Div(
             [
-                # Dropdown Card
+                # แถวบน: กราฟเส้น (Trend/Comparison)
                 html.Div(
                     [
-                        html.Label(
-                            "🌍 เลือกภูมิภาคเพื่อวิเคราะห์:", style={"fontWeight": "bold"}
+                        html.Div(
+                            [dcc.Graph(id="main-bar")],
+                            style={
+                                "backgroundColor": DARK_STYLE["card"],
+                                "borderRadius": "15px",
+                                "padding": "15px",
+                            },
+                        )
+                    ],
+                    style={"padding": "20px"},
+                ),
+                # แถวล่าง: สองกราฟคู่
+                html.Div(
+                    [
+                        html.Div(
+                            [dcc.Graph(id="sub-pie")],
+                            style={
+                                "width": "48%",
+                                "display": "inline-block",
+                                "backgroundColor": DARK_STYLE["card"],
+                                "borderRadius": "15px",
+                                "padding": "15px",
+                            },
                         ),
-                        dcc.Dropdown(
-                            id="region-dropdown",
-                            options=[
-                                {"label": f"Region: {r}", "value": r}
-                                for r in sorted(df["Region"].unique())
-                            ],
-                            value="North",
-                            clearable=False,
-                            style={"marginTop": "10px"},
+                        html.Div(
+                            [dcc.Graph(id="sub-scatter")],
+                            style={
+                                "width": "48%",
+                                "float": "right",
+                                "backgroundColor": DARK_STYLE["card"],
+                                "borderRadius": "15px",
+                                "padding": "15px",
+                            },
                         ),
                     ],
-                    style={
-                        "width": "30%",
-                        "display": "inline-block",
-                        "verticalAlign": "top",
-                        "padding": "20px",
-                        "backgroundColor": COLORS["card"],
-                        "borderRadius": "10px",
-                        "boxShadow": "0 4px 6px rgba(0,0,0,0.1)",
-                    },
-                ),
-                # Summary Cards
-                html.Div(
-                    id="summary-cards",
-                    style={"width": "65%", "display": "inline-block", "float": "right"},
+                    style={"padding": "0 20px 20px 20px"},
                 ),
             ],
-            style={"marginBottom": "30px", "overflow": "hidden"},
-        ),
-        # ส่วนกราฟแถวบน (2 กราฟ)
-        html.Div(
-            [
-                html.Div(
-                    [dcc.Graph(id="bar-chart")],
-                    style={
-                        "width": "58%",
-                        "display": "inline-block",
-                        "backgroundColor": COLORS["card"],
-                        "borderRadius": "10px",
-                        "padding": "10px",
-                    },
-                ),
-                html.Div(
-                    [dcc.Graph(id="pie-chart")],
-                    style={
-                        "width": "38%",
-                        "display": "inline-block",
-                        "float": "right",
-                        "backgroundColor": COLORS["card"],
-                        "borderRadius": "10px",
-                        "padding": "10px",
-                    },
-                ),
-            ],
-            style={"marginBottom": "30px"},
-        ),
-        # ส่วนกราฟแถวล่าง (1 กราฟเต็มหน้าจอ)
-        html.Div(
-            [dcc.Graph(id="scatter-plot")],
-            style={
-                "backgroundColor": COLORS["card"],
-                "borderRadius": "10px",
-                "padding": "10px",
-            },
+            style={"marginLeft": "22%", "paddingTop": "20px"},
         ),
     ],
 )
 
 
-# --- 3. Interactivity (Callback) ---
+# --- 3. Callbacks ---
 @app.callback(
     [
-        Output("bar-chart", "figure"),
-        Output("pie-chart", "figure"),
-        Output("scatter-plot", "figure"),
-        Output("summary-cards", "children"),
+        Output("main-bar", "figure"),
+        Output("sub-pie", "figure"),
+        Output("sub-scatter", "figure"),
+        Output("summary-info", "children"),
     ],
     [Input("region-dropdown", "value")],
 )
-def update_dashboard(selected_region):
-    filtered_df = df[df["Region"] == selected_region]
+def update_ui(region):
+    f_df = df[df["Region"] == region]
 
-    # คำนวณค่าสรุป (Summary Stats)
-    total_sales = filtered_df["Sales"].sum()
-    total_items = len(filtered_df)
-
-    # กราฟที่ 1: Bar Chart (ปรับแต่งสี)
+    # 1. Bar Chart สไตล์สีรุ้งนีออน
     fig1 = px.bar(
-        filtered_df,
+        f_df,
         x="Product",
         y="Sales",
-        color="Category",
-        title=f"📦 ยอดขายรายสินค้าใน {selected_region}",
-        template="plotly_white",
+        color="Sales",
+        color_continuous_scale="Viridis",
+        title=f"PRODUCT PERFORMANCE ({region})",
     )
 
-    # กราฟที่ 2: Pie Chart (Donut Style)
+    # 2. Pie Chart แบบไม่มีพื้นหลัง
     fig2 = px.pie(
-        filtered_df,
-        names="Category",
-        values="Sales",
-        title="📊 สัดส่วนตามหมวดหมู่",
-        hole=0.4,
+        f_df, names="Category", values="Sales", hole=0.6, title="CATEGORY SPLIT"
     )
 
-    # กราฟที่ 3: Scatter Plot
+    # 3. Scatter Chart
     fig3 = px.scatter(
-        filtered_df,
+        f_df,
         x="Product",
         y="Sales",
         size="Sales",
         color="Category",
-        title="🔍 รายละเอียดการกระจายตัว",
-        hover_name="Product",
-        height=350,
+        title="DATA DENSITY",
     )
 
-    # สร้าง UI สำหรับ Summary Cards
-    cards = [
-        html.Div(
-            [
-                html.H3(
-                    f"฿ {total_sales:,}", style={"color": "#27ae60", "margin": "0"}
-                ),
-                html.P("ยอดขายรวม", style={"margin": "0", "color": "#95a5a6"}),
-            ],
-            style={
-                "width": "45%",
-                "display": "inline-block",
-                "textAlign": "center",
-                "padding": "15px",
-                "backgroundColor": COLORS["card"],
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 6px rgba(0,0,0,0.1)",
-            },
-        ),
-        html.Div(
-            [
-                html.H3(total_items, style={"color": "#2980b9", "margin": "0"}),
-                html.P("จำนวนสินค้าที่ขาย", style={"margin": "0", "color": "#95a5a6"}),
-            ],
-            style={
-                "width": "45%",
-                "display": "inline-block",
-                "float": "right",
-                "textAlign": "center",
-                "padding": "15px",
-                "backgroundColor": COLORS["card"],
-                "borderRadius": "10px",
-                "boxShadow": "0 4px 6px rgba(0,0,0,0.1)",
-            },
-        ),
-    ]
+    # ปรับแต่งธีมกราฟให้เป็น Dark ทุกตัว
+    for fig in [fig1, fig2, fig3]:
+        fig.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            font_color="#fff",
+            title_font_size=18,
+        )
 
-    return fig1, fig2, fig3, cards
+    # ข้อมูลสรุปใน Sidebar
+    info = html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("TOTAL SALES"),
+                    html.H2(
+                        f"${f_df['Sales'].sum():,}",
+                        style={"color": DARK_STYLE["accent"]},
+                    ),
+                ],
+                style={"textAlign": "center", "marginBottom": "20px"},
+            ),
+            html.Div(
+                [html.H4("ITEMS"), html.H2(len(f_df), style={"color": "#4ecdc4"})],
+                style={"textAlign": "center"},
+            ),
+        ]
+    )
+
+    return fig1, fig2, fig3, info
 
 
 if __name__ == "__main__":
