@@ -114,3 +114,53 @@ app.layout = dbc.Container(
     ],
     fluid=True,
 )
+
+
+# =============================
+# Callback
+# =============================
+@app.callback(
+    Output("life-exp-graph", "figure"),
+    Output("gdp-graph", "figure"),
+    Output("population-graph", "figure"),
+    Output("avg-life", "children"),
+    Output("avg-gdp", "children"),
+    Output("total-pop", "children"),
+    Input("continent-dropdown", "value"),
+)
+def update_dashboard(selected_continent):
+
+    filtered_df = df[df["continent"] == selected_continent]
+
+    # ===== Graph 1 =====
+    fig1 = px.line(
+        filtered_df,
+        x="year",
+        y="lifeExp",
+        color="country",
+        title="Life Expectancy Over Time",
+    )
+
+    # ===== Graph 2 =====
+    fig2 = px.line(
+        filtered_df,
+        x="year",
+        y="gdpPercap",
+        color="country",
+        title="GDP per Capita Over Time",
+    )
+
+    # ===== Graph 3 =====
+    latest_year = filtered_df["year"].max()
+    latest_df = filtered_df[filtered_df["year"] == latest_year]
+
+    fig3 = px.bar(
+        latest_df, x="country", y="pop", title=f"Population by Country ({latest_year})"
+    )
+
+    # ===== KPI Calculation =====
+    avg_life = round(filtered_df["lifeExp"].mean(), 2)
+    avg_gdp = round(filtered_df["gdpPercap"].mean(), 2)
+    total_pop = f"{int(latest_df['pop'].sum()):,}"
+
+    return fig1, fig2, fig3, avg_life, avg_gdp, total_pop
