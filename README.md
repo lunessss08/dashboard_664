@@ -1,41 +1,22 @@
-# Simple Iris Dashboard
+# Simple Interactive Sales Dashboard
 
-This project is a simple interactive dashboard built using Plotly Dash.
+โปรเจกต์นี้สร้างขึ้นเพื่อทดสอบความเข้าใจในการสร้าง Dashboard ด้วย **Python** และ **Plotly Dash** โดยเน้นการสร้างความสัมพันธ์ (Interactivity) ระหว่างคอมโพเนนต์
 
-## Features
-- 3 Graphs (Scatter, Histogram, Box Plot)
-- Dropdown filter (Species)
-- Slider filter (Petal Length)
-- Interactive components using Dash Callback
+### รายละเอียด Dashboard
+- **Dropdown Menu:** ใช้สำหรับเลือกประเภทสินค้า
+- **Graph 1 (Bar Chart):** แสดงยอดขายแยกตามภูมิภาค
+- **Graph 2 (Scatter Plot):** แสดงความสัมพันธ์ระหว่างยอดขายและกำไร
+- **Graph 3 (Pie Chart):** แสดงสัดส่วนยอดขายในแต่ละเดือน
 
----
+### โครงสร้างไฟล์
+- `app.py`: โค้ดหลักในการประมวลผลข้อมูลและสร้าง UI
+- `requirements.txt`: รายการไลบรารีที่จำเป็น
 
-## Installation
+### วิธีการติดตั้งและรันโปรแกรม
 
-1. Create virtual environment (optional but recommended)
-
-python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-
-2. Install dependencies
-
-pip install -r requirements.txt
-
----
-
-## Run Application
-
-python app.py
-
-Then open your browser and go to:
-
-http://127.0.0.1:8050
-
----
-
-## Technologies Used
-- Python
-- Dash
-- Plotly
-- Pandas
+1. **เตรียม Environment (แนะนำให้ใช้ Virtual Env):**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # สำหรับ Mac/Linux
+   # หรือ
+   venv\Scripts\activate  # สำหรับ Windows
