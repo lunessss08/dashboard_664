@@ -8,3 +8,8 @@ import pandas as pd
 # Load Dataset
 # =============================
 df = px.data.gapminder()
+
+# =============================
+# Create App with Bootstrap Theme
+# =============================
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
