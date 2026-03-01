@@ -75,3 +75,32 @@ When the user selects a continent from the dropdown menu:
 - KPI values are recalculated
 
 This demonstrates the use of Dash Callback for interactive components.
+
+	•	dash ใช้สร้าง Web Application แบบ Interactive
+	•	dcc (Dash Core Components) ใช้สร้าง Graph และ Dropdown
+	•	html ใช้สร้างโครงสร้าง HTML
+	•	Input, Output ใช้กำหนด Callback สำหรับทำ Interactive
+	•	dash_bootstrap_components (dbc) ใช้จัด Layout และ Theme ให้สวยงาม
+	•	plotly.express ใช้สร้างกราฟ
+	•	pandas ใช้จัดการข้อมูล
+
+ใช้ Dataset สำเร็จรูปจาก Plotly ชื่อ Gapminder
+ประกอบด้วยข้อมูล:
+	•	continent
+	•	country
+	•	year
+	•	life expectancy
+	•	GDP per capita
+	•	population
+
+สร้าง Dash application
+ใช้ Bootstrap Theme ชื่อ CYBORG (Dark Mode)
+ทำให้ Dashboard ดูทันสมัย
+
+Callback ทำหน้าที่:
+
+เมื่อผู้ใช้เลือกทวีปจาก Dropdown:
+	1.	ระบบจะ filter ข้อมูลตามทวีป
+	2.	คำนวณค่า KPI ใหม่
+	3.	สร้างกราฟใหม่ทั้ง 3 กราฟ
+	4.	อัปเดตข้อมูลบนหน้าเว็บทันที
